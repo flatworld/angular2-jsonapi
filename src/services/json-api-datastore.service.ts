@@ -246,6 +246,10 @@ export class JsonApiDatastore {
   }
 
   public addToStore(models: JsonApiModel | JsonApiModel[]): void {
+    let cacheDisabled = !!Reflect.getMetadata('JsonApiDatastoreConfig', this.constructor).disableCache;
+    if (cacheDisabled) {
+      return;
+    }
     let model: JsonApiModel = models instanceof Array ? models[0] : models;
     let type: string = Reflect.getMetadata('JsonApiModelConfig', model.constructor).type;
     if (!this._store[type]) {
