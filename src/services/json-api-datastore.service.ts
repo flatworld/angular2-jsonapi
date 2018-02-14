@@ -42,7 +42,7 @@ export class JsonApiDatastore {
 
   saveRecord<T extends JsonApiModel>(attributesMetadata: any, model?: T, params?: any, headers?: Headers): Observable<T> {
     let modelType = <ModelType<T>>model.constructor;
-    let typeName: string = Reflect.getMetadata('JsonApiModelConfig', modelType).type;
+    let typeName: string = model.formTypeField(Reflect.getMetadata('JsonApiModelConfig', modelType).type);
     let options: RequestOptions = this.getOptions(headers);
     let relationships: any = this.getRelationships(model);
     let url: string = this.buildUrl(modelType, params, model.id);
@@ -105,7 +105,7 @@ export class JsonApiDatastore {
   }
 
   private buildSingleRelationshipData(model: JsonApiModel): any {
-    let relationshipType: string =  Reflect.getMetadata('JsonApiModelConfig', model.constructor).type;
+    let relationshipType: string =  model.formTypeField(Reflect.getMetadata('JsonApiModelConfig', model.constructor).type);
     let relationShipData: {type: string, id?: string, attributes?: any} = {type: relationshipType};
     if (model.id) {
       relationShipData.id = model.id;

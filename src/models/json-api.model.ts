@@ -61,6 +61,10 @@ export class JsonApiModel {
     Reflect.defineMetadata('Attribute', attributesMetadata, this);
   }
 
+  formTypeField(givenTypeName: string): string {
+    return givenTypeName;
+  }
+
   private parseHasMany(data: any, included: any, level: number): void {
     let hasMany: any = Reflect.getMetadata('HasMany', this);
     if (hasMany) {

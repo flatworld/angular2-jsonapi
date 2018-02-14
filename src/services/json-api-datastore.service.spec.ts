@@ -1,5 +1,6 @@
 import {TestBed} from '@angular/core/testing';
 import { Author } from '../../test/models/author.model';
+import { Event } from '../../test/models/social/event.model';
 import {
     AUTHOR_ID, AUTHOR_NAME, AUTHOR_BIRTH,
     getAuthorData
@@ -45,6 +46,64 @@ describe('JsonApiDatastore', () => {
 
     });
 
+    describe('saveRecord', () => {
+      it('should build basic url', () => {
+        backend.connections.subscribe((c: MockConnection) => {
+
+            expect(c.request.url).toEqual(BASE_URL + 'authors');
+            expect(c.request.method).toEqual(RequestMethod.Post);
+        });
+        const author = datastore.createRecord(Author);
+        author.save();
+      });
+
+      it('should build basic url with nested types', () => {
+        backend.connections.subscribe((c: MockConnection) => {
+            expect(c.request.url).toEqual(BASE_URL + 'social/events');
+            expect(c.request.method).toEqual(RequestMethod.Post);
+        });
+        const event = datastore.createRecord(Event);
+        event.save();
+      });
+
+      it('should send proper data', () => {
+        backend.connections.subscribe((c: MockConnection) => {
+            expect(c.request.json().data).toEqual({
+              type: 'authors',
+              id: undefined,
+              attributes: {},
+              relationships: {
+                'social::Events': { data: [
+                  { type: 'social::Events', attributes:
+                    { name: 'Book signing' }
+                  }
+                ]
+              }
+            });
+        });
+        const event = datastore.createRecord(Event);
+        event.name = 'Book signing';
+        const author = datastore.createRecord(Author);
+        author['social::Events'] = [event];
+        author.save();
+      });
+
+      it('should send proper data for nested resource', () => {
+        backend.connections.subscribe((c: MockConnection) => {
+          expect(c.request.json().data).toEqual({
+            type: 'social::Events',
+            id: undefined,
+            attributes: {
+              name: 'Book signing',
+            },
+            relationships: undefined
+          });
+        });
+        const event = datastore.createRecord(Event);
+        event.name = 'Book signing';
+        event.save();
+      });
+    });
 
     describe('query', () => {
 
@@ -55,6 +114,14 @@ describe('JsonApiDatastore', () => {
                 expect(c.request.method).toEqual(RequestMethod.Get);
             });
             datastore.query(Author).subscribe();
+        });
+
+        it('should build basic url for nested types', () => {
+            backend.connections.subscribe((c: MockConnection) => {
+                expect(c.request.url).toEqual(BASE_URL + 'social/events');
+                expect(c.request.method).toEqual(RequestMethod.Get);
+            });
+            datastore.query(Event).subscribe();
         });
 
         it('should set JSON API headers', () => {
@@ -170,4 +237,4 @@ describe('JsonApiDatastore', () => {
             });
         });
     });
-});
+}); ; ; ; ; ;
